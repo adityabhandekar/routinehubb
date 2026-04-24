@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Task Streak Pro</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,11 +11,12 @@
 </head>
 <body>
 
+  <!-- Auth Page -->
   <section id="authPage" class="auth-page">
     <div class="auth-card">
-      <div class="auth-logo">🔥</div>
-      <h1>Task Streak Pro</h1>
-      <p>Manage your placement routine with daily score, time schedule and consistency tracking.</p>
+      <div class="auth-logo">🦅</div>
+      <h1>Task Streak</h1>
+      <p>Manage your routine with daily score, schedule and consistency tracking.</p>
 
       <div class="auth-tabs">
         <button id="loginTab" class="tab active">Login</button>
@@ -29,12 +30,12 @@
 
       <div class="input-group">
         <label>Email</label>
-        <input id="email" type="email" placeholder="you@example.com">
+        <input id="email" type="email" placeholder="Enter Gmail">
       </div>
 
       <div class="input-group">
         <label>Password</label>
-        <input id="password" type="password" placeholder="minimum 6 characters">
+        <input id="password" type="password" placeholder="Minimum 6 characters">
       </div>
 
       <button id="authBtn" class="primary-btn full-btn">Login</button>
@@ -42,13 +43,14 @@
     </div>
   </section>
 
+  <!-- Dashboard -->
   <section id="dashboard" class="dashboard hidden">
     <aside class="sidebar">
       <div class="brand">
-        <span>🔥</span>
+        <span>🦅</span>
         <div>
           <h2>Task Streak</h2>
-          <p>Placement Tracker</p>
+          <p>Daily Tracker</p>
         </div>
       </div>
 
@@ -66,8 +68,8 @@
     <main class="main">
       <header class="header">
         <div>
-          <p class="small-title">Today&apos;s Focus</p>
-          <h1>Daily Productivity Dashboard</h1>
+          <p class="small-title">Today's Focus</p>
+          <h1>Daily Productivity</h1>
           <p id="currentDateText" class="muted"></p>
         </div>
         <button id="openModalBtn" class="primary-btn">+ Add Task</button>
@@ -96,7 +98,7 @@
 
         <div class="stat-card">
           <p>Streak</p>
-          <h2>🔥 <span id="streakCount">0</span></h2>
+          <h2><span id="streakCount">0</span></h2>
           <span class="stat-sub">Daily consistency</span>
         </div>
       </section>
@@ -123,6 +125,7 @@
     </main>
   </section>
 
+  <!-- Task Modal -->
   <div id="taskModal" class="modal hidden">
     <div class="modal-card">
       <div class="modal-head">
