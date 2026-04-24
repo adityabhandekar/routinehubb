@@ -64,10 +64,27 @@ function formatTime(time24) {
   return `${String(h).padStart(2, "0")}:${String(minute).padStart(2, "0")} ${suffix}`;
 }
 
+// Convert time to minutes for sorting (using start time)
 function timeToMinutes(time24) {
   if (!time24) return 99999;
   const [hour, minute] = time24.split(":").map(Number);
   return hour * 60 + minute;
+}
+
+// Get duration between start and end time
+function getTimeDuration(startTime, endTime) {
+  if (!startTime || !endTime) return "";
+  const startMinutes = timeToMinutes(startTime);
+  const endMinutes = timeToMinutes(endTime);
+  const durationMinutes = endMinutes - startMinutes;
+  if (durationMinutes <= 0) return "";
+  
+  const hours = Math.floor(durationMinutes / 60);
+  const minutes = durationMinutes % 60;
+  
+  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h`;
+  return `${minutes}m`;
 }
 
 function completionKey(dateStr) {
@@ -153,7 +170,7 @@ onAuthStateChanged(auth, async (user) => {
     if ($("authPage")) $("authPage").classList.add("hidden");
     if ($("dashboard")) $("dashboard").classList.remove("hidden");
 
-    if ($("showUsername")) $("showUsername").innerText = user.displayName || "Adiii";
+    if ($("showUsername")) $("showUsername").innerText = user.displayName || "User";
     if ($("showEmail")) $("showEmail").innerText = user.email || "";
     if ($("avatar")) $("avatar").innerText = (user.displayName || "U").charAt(0).toUpperCase();
 
@@ -183,7 +200,8 @@ function openModal(task = null) {
   if ($("modalTitle")) $("modalTitle").innerText = editingTaskId ? "Update Task" : "Add Task";
   if ($("taskTitle")) $("taskTitle").value = task?.title || "";
   if ($("taskCategory")) $("taskCategory").value = task?.category || "DSA";
-  if ($("taskTime")) $("taskTime").value = task?.time || "";
+  if ($("taskStartTime")) $("taskStartTime").value = task?.startTime || "";
+  if ($("taskEndTime")) $("taskEndTime").value = task?.endTime || "";
   if ($("taskDate")) $("taskDate").value = task?.startDate || ($("selectedDate") ? $("selectedDate").value : today());
   if ($("taskNote")) $("taskNote").value = task?.note || "";
   if ($("taskMsg")) $("taskMsg").innerText = "";
@@ -201,7 +219,8 @@ if ($("saveTaskBtn")) {
   $("saveTaskBtn").onclick = async () => {
     const title = $("taskTitle").value.trim();
     const category = $("taskCategory").value;
-    const time = $("taskTime").value;
+    const startTime = $("taskStartTime").value;
+    const endTime = $("taskEndTime").value;
     const startDate = $("taskDate").value;
     const note = $("taskNote").value.trim();
 
@@ -210,12 +229,22 @@ if ($("saveTaskBtn")) {
       if ($("taskMsg")) $("taskMsg").innerText = "Task name required";
       return;
     }
-    if (!time) {
-      if ($("taskMsg")) $("taskMsg").innerText = "Task time required";
+    if (!startTime) {
+      if ($("taskMsg")) $("taskMsg").innerText = "Start time required";
+      return;
+    }
+    if (!endTime) {
+      if ($("taskMsg")) $("taskMsg").innerText = "End time required";
       return;
     }
     if (!startDate) {
       if ($("taskMsg")) $("taskMsg").innerText = "Task date required";
+      return;
+    }
+
+    // Validate that end time is after start time
+    if (timeToMinutes(endTime) <= timeToMinutes(startTime)) {
+      if ($("taskMsg")) $("taskMsg").innerText = "End time must be after start time";
       return;
     }
 
@@ -226,7 +255,8 @@ if ($("saveTaskBtn")) {
       const taskData = {
         title,
         category,
-        time,
+        startTime,
+        endTime,
         startDate,
         note,
         updatedAt: serverTimestamp()
@@ -294,7 +324,8 @@ function getVisibleTasks() {
   if (filter === "done") tasks = tasks.filter((task) => task[key] === true);
   if (filter === "pending") tasks = tasks.filter((task) => task[key] !== true);
 
-  return tasks.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+  // Sort by start time
+  return tasks.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
 }
 
 function renderTasks() {
@@ -315,10 +346,11 @@ function renderTasks() {
 
   if ($("taskList")) {
     $("taskList").innerHTML = tasks.map((task) => {
-      // IMPORTANT FIX: Properly check if the task is completed for the selected date
       const isChecked = task[key] === true;
       const checkedAttr = isChecked ? "checked" : "";
       const doneClass = isChecked ? "task-done" : "";
+      const duration = getTimeDuration(task.startTime, task.endTime);
+      const timeRange = `${formatTime(task.startTime)} - ${formatTime(task.endTime)}${duration ? ` (${duration})` : ''}`;
 
       return `
         <div class="task-card ${doneClass}" data-task-id="${task.id}">
@@ -328,7 +360,7 @@ function renderTasks() {
             <h3>${escapeHtml(task.title)}</h3>
             <div class="task-meta">
               <span class="badge">${escapeHtml(task.category || "Other")}</span>
-              <span class="time-badge">⏰ ${formatTime(task.time)}</span>
+              <span class="time-badge">⏰ ${timeRange}</span>
               <span class="date-badge">📅 From ${escapeHtml(task.startDate || selectedDate)}</span>
             </div>
             ${task.note ? `<div class="task-note">📝 ${escapeHtml(task.note)}</div>` : ""}
@@ -350,22 +382,18 @@ window.toggleTask = async (taskId, isChecked, selectedDate) => {
     return;
   }
 
-  // Use the provided selectedDate or get from DOM
   const date = selectedDate || ($("selectedDate") ? $("selectedDate").value : today());
   const key = completionKey(date);
 
   try {
-    // Update the task's completion status for the selected date
     await updateDoc(doc(db, "users", currentUser.uid, "tasks", taskId), {
       [key]: isChecked === true || isChecked === "true",
       updatedAt: serverTimestamp()
     });
     
-    // Force immediate UI update
     renderTasks();
     updateScore();
     
-    // Only update streak for today's date
     if (date === today()) {
       setTimeout(() => updateStreakIfNeeded(), 200);
     }
@@ -430,15 +458,12 @@ async function updateStreakIfNeeded() {
   const todayDate = today();
   const key = completionKey(todayDate);
   
-  // Get today's active tasks
   const todayTasks = allTasks.filter((task) => {
     return !task.startDate || task.startDate <= todayDate;
   });
 
-  // If no tasks for today, don't update streak
   if (todayTasks.length === 0) return;
   
-  // Check if all today's tasks are completed
   const allCompleted = todayTasks.every((task) => task[key] === true);
   
   if (!allCompleted) return;
@@ -447,7 +472,6 @@ async function updateStreakIfNeeded() {
   const snap = await getDoc(userRef);
   const data = snap.data() || {};
 
-  // Don't update streak twice on the same day
   if (data.lastCompletedDate === todayDate) return;
 
   const yesterday = new Date();

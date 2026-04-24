@@ -645,7 +645,23 @@ input:focus, select:focus, textarea:focus {
   overflow: hidden;
   margin-top: 0.75rem;
 }
+/* Duration badge style */
+.duration-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.65rem;
+  white-space: nowrap;
+  background: var(--card2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
 
+@media (min-width: 768px) {
+  .duration-badge {
+    font-size: 0.7rem;
+  }
+}
 .progress-fill {
   width: 0%;
   height: 100%;
@@ -946,6 +962,11 @@ input:focus, select:focus, textarea:focus {
 }
 
 .time-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.65rem;
+  white-space: nowrap;
   background: var(--green-light);
   color: #6ee7b7;
 }

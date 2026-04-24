@@ -14,7 +14,7 @@
   <!-- Auth Page -->
   <section id="authPage" class="auth-page">
     <div class="auth-card">
-      <div class="auth-logo">🦅</div>
+      <div class="auth-logo">🔥</div>
       <h1>Task Streak</h1>
       <p>Manage your routine with daily score, schedule and consistency tracking.</p>
 
@@ -47,7 +47,7 @@
   <section id="dashboard" class="dashboard hidden">
     <aside class="sidebar">
       <div class="brand">
-        <span>🦅</span>
+        <span>🔥</span>
         <div>
           <h2>Task Streak</h2>
           <p>Daily Tracker</p>
@@ -98,7 +98,7 @@
 
         <div class="stat-card">
           <p>Streak</p>
-          <h2><span id="streakCount">0</span></h2>
+          <h2>🔥 <span id="streakCount">0</span></h2>
           <span class="stat-sub">Daily consistency</span>
         </div>
       </section>
@@ -152,14 +152,21 @@
         </div>
 
         <div class="input-group">
-          <label>Time</label>
-          <input id="taskTime" type="time">
+          <label>Start Date</label>
+          <input id="taskDate" type="date">
         </div>
       </div>
 
-      <div class="input-group">
-        <label>Start Date</label>
-        <input id="taskDate" type="date">
+      <div class="form-row">
+        <div class="input-group">
+          <label>Start Time</label>
+          <input id="taskStartTime" type="time">
+        </div>
+
+        <div class="input-group">
+          <label>End Time</label>
+          <input id="taskEndTime" type="time">
+        </div>
       </div>
 
       <div class="input-group">
