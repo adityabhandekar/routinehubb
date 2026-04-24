@@ -170,7 +170,7 @@ onAuthStateChanged(auth, async (user) => {
     if ($("authPage")) $("authPage").classList.add("hidden");
     if ($("dashboard")) $("dashboard").classList.remove("hidden");
 
-    if ($("showUsername")) $("showUsername").innerText = user.displayName || "YzWardhekar";
+    if ($("showUsername")) $("showUsername").innerText = user.displayName || "EagleBeatss";
     if ($("showEmail")) $("showEmail").innerText = user.email || "";
     if ($("avatar")) $("avatar").innerText = (user.displayName || "U").charAt(0).toUpperCase();
 
